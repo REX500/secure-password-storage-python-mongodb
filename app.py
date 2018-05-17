@@ -103,6 +103,8 @@ def login(userToLogin):
     if user:
         if bcrypt.hashpw(userToLogin['password'].encode('utf-8'), user['password']) == user['password']:
             userKey = user['key']
+            print('This is the user key')
+            print(userKey)
             return True
         else:
             # print('no match')
@@ -110,6 +112,18 @@ def login(userToLogin):
     else:
         print('User cannot be found')
 
+# read notes
+def readNotes():
+    # key to decrypt the messages
+    global userKey
+    global notes
+
+    for note in notes.find():
+        # store key in the safe
+        box = nacl.secret.SecretBox(userKey)
+        decryptedNote = box.decrypt(note['note'])
+
+        print(decryptedNote)
 
 # setting up db connection
 initDatabase()
@@ -118,41 +132,56 @@ while True:
     print('Choose 1 for creating a user')
     print('Choose 2 for logging in')
 
-    choice = input('press a number...')
-    if choice == '1':
-        print('You chose 1')
-    else:
-        print('You chose 2')
-# getting user input
-# add a new user to db
-username = input('Enter username: ')
-password = input('Enter password: ')
+    choice = input('press a number: ')
+    # getting user input
+    # add a new user to db
+    username = input('Enter username: ')
+    password = input('Enter password: ')
 
-userJson = {
+    userJson = {
     'username': username,
     'password': password,
     'key': None
-}
-
-# adding user to db
-# insertUser(userJson)
-
-# tryig to authenticate the user
-if login(userJson):
-    loggedIn = True
-    print('You are logged in')
-
-if loggedIn:
-    # add a note
-    note = input('Add a note: ').encode('utf-8')
-    noteJson = {
-        'note': note,
-        'key': userKey
     }
-    if addNote(noteJson):
-        print('Note added!')
+    if choice == '1':
+        password2 = input('Repeat the password: ')
+        if password2 == userJson['password']:
+            # create user
+            insertUser(userJson)
+        else:
+            print('Passwords do not match, fuck off!')
     else:
-        print('Note not added')
+        # login user
+        if login(userJson):
+            loggedIn = True
+            print('You are logged in')
+            # setting
+            break
+
+
+
+while True:
+    print('Choose 1 for adding a new note')
+    print('Choose 2 for reading your notes')
+    print('Choose 3 for killing the program')
+
+    choice = input('press a number: ')
+
+    if loggedIn and choice == '1':
+        # add a note
+        note = input('Add a note: ').encode('utf-8')
+        noteJson = {
+            'note': note,
+            'key': userKey
+        }
+        if addNote(noteJson):
+            print('Note added!')
+        else:
+            print('Note not added')
+    if loggedIn and choice == '2':
+        readNotes()
+    if loggedIn and choice == '3':
+        break
 
 # userKdf = {
 #     'username': 'superSecure',
