@@ -222,18 +222,3 @@ while True:
         readNotes(userJson['username'])
     if loggedIn and choice == '3':
         break
-
-# userKdf = {
-#     'username': 'superSecure',
-#     'password': 'lenovochairWood40Candle'
-# }
-# key = bcrypt.kdf(
-#     password = userKdf['password'].encode('utf-8'),
-#     salt = salt,
-#     desired_key_bytes = 32,
-#     rounds = 100
-# )
-# to read the data from db
-# fromDb = users.find() # returns a iterable cursor
-# fromDB2 = users.list() # returns all from memory as a dict - what ever that means
-# res = users.insert_one(user)
